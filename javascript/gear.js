@@ -1,4 +1,8 @@
-// Audio System
+// ==========================================
+// MGSV iDROID TACTICAL SIMULATOR - GEAR.JS
+// ==========================================
+
+// --- Sistema de Áudio (Web Audio API) ---
 class AudioSystem {
     constructor() {
         this.ctx = null;
@@ -11,285 +15,356 @@ class AudioSystem {
     }
     playClick() {
         if (!this.enabled) return;
-        this.init();
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.05);
-        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.05);
+        try {
+            this.init();
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.05);
+        } catch(e) {}
     }
     playAlert() {
         if (!this.enabled) return;
-        this.init();
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(1200, this.ctx.currentTime);
-        osc.frequency.setValueAtTime(800, this.ctx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.3);
-    }
-    playFulton() {
-        if (!this.enabled) return;
-        this.init();
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(300, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.4);
-        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.4);
+        try {
+            this.init();
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(1200, this.ctx.currentTime);
+            osc.frequency.setValueAtTime(600, this.ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.2);
+        } catch(e) {}
     }
 }
+
 const audioSys = new AudioSystem();
 
-// Game State
-let gameState = {
-    name: "Venom Snake",
+// --- Estado do Jogador / LocalStorage ---
+let playerData = JSON.parse(localStorage.getItem('mgsv_player_data')) || {
+    name: "",
     unit: "Unidade de Combate",
     avatar: "Venom Snake",
-    xp: 0,
     level: 1,
+    xp: 0,
+    maxXp: 500,
     gmp: 150000,
     resources: 5400,
     missionsCompleted: [],
-    platforms: {
-        combat: { level: 1, name: "Plataforma de Combate" },
-        intel: { level: 1, name: "Plataforma de Intel" },
-        medical: { level: 1, name: "Plataforma Médica" },
-        security: { level: 1, name: "Plataforma de Segurança" },
-        rd: { level: 1, name: "Plataforma de P&D" }
-    },
-    achievementsUnlocked: [],
+    platforms: 5,
+    achievements: [],
     theme: "diamond-dogs",
     audioEnabled: true
 };
 
-function saveGame() {
-    localStorage.setItem('mgsv_idroid_save_ptbr', JSON.stringify(gameState));
+function savePlayerData() {
+    localStorage.setItem('mgsv_player_data', JSON.stringify(playerData));
 }
 
-function loadGame() {
-    const saved = localStorage.getItem('mgsv_idroid_save_ptbr');
-    if (saved) {
-        try {
-            gameState = JSON.parse(saved);
-        } catch(e) { console.error("Erro ao carregar save", e); }
-    }
-}
-
-const ranks = [
-    { minLvl: 1, name: "Recruta" },
-    { minLvl: 10, name: "Soldado" },
-    { minLvl: 20, name: "Operativo" },
-    { minLvl: 30, name: "Comandante" },
-    { minLvl: 40, name: "Cão de Diamante de Elite" },
-    { minLvl: 48, name: "Chefe Lendário" }
+// --- Dados de Campanhas, Intel e Conquistas ---
+const campaignMissions = [
+    { id: 1, title: "Missão 1: Despertar", region: "Hospital de Chipre", xp: 500, gmp: 50000, desc: "Escape do hospital em chamas com a ajuda de Ishmael." },
+    { id: 2, title: "Missão 2: Membros Fantasmas", region: "Afeganistão", xp: 800, gmp: 80000, desc: "Resgate Kazuhira Miller do acampamento de Wakh Sind." },
+    { id: 3, title: "Missão 3: O Caminho do Herói", region: "Afeganistão", xp: 1000, gmp: 100000, desc: "Elimine ou extraia o oficial Spetsnaz." },
+    { id: 4, title: "Missão 4: C2W", region: "Afeganistão", xp: 1200, gmp: 120000, desc: "Destrua os equipamentos de comunicação inimigos." },
+    { id: 5, title: "Missão 5: Além da Cerca", region: "Afeganistão", xp: 1500, gmp: 150000, desc: "Resgate o engenheiro preso pelas forças soviéticas." },
+    { id: 6, title: "Missão 6: Anjo com Asas Quebradas", region: "Afeganistão", xp: 1800, gmp: 180000, desc: "Localize e extraia o prisioneiro Malak." },
+    { id: 7, title: "Missão 7: Code Talker", region: "África (Pf)", xp: 2200, gmp: 220000, desc: "Infiltre-se na mansão para extrair o cientista Code Talker." },
+    { id: 8, title: "Missão 8: Skull Face", region: "África (Sunset)", xp: 2500, gmp: 250000, desc: "Confronte o líder da XOF na base de Central Base Camp." },
+    { id: 9, title: "Missão 9: Luzes Brilhantes, Mesmo na Morte", region: "Mother Base", xp: 3000, gmp: 300000, desc: "Contenha a crise biológica na plataforma de quarentena." }
 ];
 
-function getRankName(lvl) {
-    let currentRank = ranks[0].name;
-    for (let r of ranks) {
-        if (lvl >= r.minLvl) currentRank = r.name;
-    }
-    return currentRank;
-}
+const intelDatabaseData = [
+    { title: "Venom Snake (Ahab)", category: "Personagens", desc: "O mercenário lendário, líder e fundador dos Diamond Dogs após a queda da Militaires Sans Frontières (MSF)." },
+    { title: "Kazuhira Miller", category: "Personagens", desc: "Co-fundador dos Diamond Dogs, especialista tático e logístico, conhecido como 'Master Miller'." },
+    { title: "Revolver Ocelot", category: "Personagens", desc: "Mestre dos interrogatórios e pistolento de elite, responsável pelo treinamento dos recrutas." },
+    { title: "Quiet", category: "Companheiros", desc: "Sniper letal que respira através da pele devido a parasitos da Cordyceps. Oferece cobertura tática extrema." },
+    { title: "D-Dog (DD)", category: "Companheiros", desc: "Lobo resgatado como filhote no Afeganistão, treinado para marcar inimigos e alvos no campo." },
+    { title: "Fulton Recovery System", category: "Equipamentos", desc: "Sistema de balão a ar comprimido usado para extrair soldados, veículos, armas e animais diretamente para a Mother Base." },
+    { title: "iDroid", category: "Equipamentos", desc: "Computador de pulso holográfico militar avançado utilizado para gerenciar mapas, missões e Mother Base." },
+    { title: "XOF", category: "Organizações", desc: "Unidade secreta de operações encabeçada por Skull Face, antagonista principal ligada à Cipher." }
+];
 
-function addXp(amount) {
-    gameState.xp += amount;
-    let xpNeeded = gameState.level * 500;
-    while (gameState.xp >= xpNeeded && gameState.level < 50) {
-        gameState.xp -= xpNeeded;
-        gameState.level++;
-        xpNeeded = gameState.level * 500;
-        showModal("PROMOÇÃO", `Chefe, você foi promovido para o Nível ${gameState.level}! Patente: ${getRankName(gameState.level)}`);
-    }
-    if (gameState.level >= 50) {
-        gameState.xp = Math.min(gameState.xp, xpNeeded);
-    }
-    updateHud();
-    saveGame();
-    checkAchievements();
-}
+const achievementsData = [
+    { id: "dog", title: "Diamond Dog", desc: "Complete o seu registro de operativo no ACC.", icon: "fa-dog" },
+    { id: "tactical", title: "Tactical Genius", desc: "Alcance o nível 5 de operativo.", icon: "fa-brain" },
+    { id: "fulton", title: "Fulton Master", desc: "Execute extrações e colete recursos de combate.", icon: "fa-parachute-box" },
+    { id: "commander", title: "Mother Base Commander", desc: "Construa e expanda plataformas da Mother Base.", icon: "fa-building-shield" },
+    { id: "soldier", title: "Legendary Soldier", desc: "Conclua missões de campanha com sucesso.", icon: "fa-medal" },
+    { id: "phantom", title: "Phantom Operative", desc: "Explore o iDroid e simulações táticas.", icon: "fa-user-secret" },
+    { id: "boss", title: "Big Boss", desc: "Atinja patentes de elite e níveis elevados.", icon: "fa-skull" }
+];
 
-function updateHud() {
-    document.getElementById('hudName').textContent = gameState.name;
-    document.getElementById('hudUnitAndRank').textContent = `${gameState.unit} | ${getRankName(gameState.level)}`;
-    document.getElementById('hudLevelText').textContent = `LVL ${gameState.level}`;
-    let xpNeeded = gameState.level * 500;
-    document.getElementById('hudXpText').textContent = `${gameState.xp} / ${xpNeeded} XP`;
-    let xpPercent = Math.min(100, (gameState.xp / xpNeeded) * 100);
-    document.getElementById('hudXpBar').style.width = `${xpPercent}%`;
-    document.getElementById('hudGmp').textContent = gameState.gmp.toLocaleString('pt-BR');
-    document.getElementById('hudResources').textContent = gameState.resources.toLocaleString('pt-BR');
-
-    const avatarIcons = {
-        "Venom Snake": "fa-user-ninja",
-        "Big Boss": "fa-skull",
-        "Quiet": "fa-crosshairs",
-        "Kazuhira Miller": "fa-glasses",
-        "Ocelot": "fa-hat-cowboy",
-        "DD": "fa-dog"
-    };
-    document.getElementById('hudAvatarIcon').className = `fa-solid ${avatarIcons[gameState.avatar] || 'fa-user-ninja'} fa-2x`;
-}
-
+// --- Inicialização e Boot ---
 window.addEventListener('DOMContentLoaded', () => {
-    loadGame();
-    
-    document.documentElement.setAttribute('data-theme', gameState.theme);
-    document.getElementById('themeSelector').value = gameState.theme;
-    document.getElementById('audioToggle').checked = gameState.audioEnabled;
-    audioSys.enabled = gameState.audioEnabled;
+    initBootSequence();
+    setupEventListeners();
+    applyTheme(playerData.theme);
+    initRadar();
+});
+
+function initBootSequence() {
+    const bootProgressBar = document.getElementById('bootProgressBar');
+    const bootStatusText = document.getElementById('bootStatusText');
+    const bootDeployContainer = document.getElementById('bootDeployContainer');
+    const bootScreen = document.getElementById('bootScreen');
 
     let progress = 0;
-    const bar = document.getElementById('bootProgressBar');
-    const statusText = document.getElementById('bootStatusText');
-    const deployContainer = document.getElementById('bootDeployContainer');
-
-    const bootInterval = setInterval(() => {
+    const interval = setInterval(() => {
         progress += Math.floor(Math.random() * 15) + 5;
         if (progress >= 100) {
             progress = 100;
-            clearInterval(bootInterval);
-            statusText.textContent = "TELEMETRIA DA ACC SINCRONIZADA.";
-            deployContainer.style.display = 'block';
+            clearInterval(interval);
+            bootStatusText.innerText = "SISTEMAS OPERACIONAIS ONLINE. PRONTO PARA DEPLOY.";
+            bootDeployContainer.style.display = 'block';
+            audioSys.playAlert();
         }
-        bar.style.width = `${progress}%`;
-    }, 120);
+        bootProgressBar.style.width = progress + '%';
+    }, 150);
 
     document.getElementById('deployMissionBtn').addEventListener('click', () => {
         audioSys.playClick();
-        document.getElementById('bootScreen').style.opacity = '0';
+        bootScreen.style.opacity = '0';
         setTimeout(() => {
-            document.getElementById('bootScreen').style.display = 'none';
-            if (!localStorage.getItem('mgsv_idroid_save_ptbr')) {
-                const modal = new bootstrap.Modal(document.getElementById('charSetupModal'));
-                modal.show();
-            }
-            updateHud();
-            renderCampaign();
-            renderMotherBase();
-            renderIntel();
-            renderAchievements();
-            renderLeaderboard();
-            initRadarCanvas();
+            bootScreen.style.display = 'none';
+            checkPlayerRegistration();
         }, 800);
     });
+}
 
-    document.querySelectorAll('.avatar-option').forEach(el => {
-        el.addEventListener('click', () => {
+function checkPlayerRegistration() {
+    if (!playerData.name || playerData.name.trim() === "") {
+        const charModal = new bootstrap.Modal(document.getElementById('charSetupModal'), { backdrop: 'static', keyboard: false });
+        charModal.show();
+    } else {
+        updateHUD();
+        renderViews();
+    }
+}
+
+// --- Configuração de Eventos ---
+function setupEventListeners() {
+    // Seleção de Avatar
+    document.querySelectorAll('.avatar-option').forEach(opt => {
+        opt.addEventListener('click', () => {
             audioSys.playClick();
             document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('active', 'border-warning'));
-            el.classList.add('active', 'border-warning');
-            gameState.avatar = el.getAttribute('data-avatar');
+            opt.classList.add('active', 'border-warning');
+            playerData.avatar = opt.getAttribute('data-avatar');
         });
     });
 
+    // Formulário de Registro
     document.getElementById('charSetupForm').addEventListener('submit', (e) => {
         e.preventDefault();
         audioSys.playClick();
         const nameInput = document.getElementById('setupName').value.trim();
-        if (nameInput) gameState.name = nameInput;
-        gameState.unit = document.getElementById('setupUnit').value;
-        saveGame();
-        updateHud();
-        const modalEl = document.getElementById('charSetupModal');
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        modal.hide();
-        showModal("BEM-VINDO AOS DIAMOND DOGS", `Operativo ${gameState.name} designado para a ${gameState.unit}. Chefe, contamos com você.`);
+        const unitSelect = document.getElementById('setupUnit').value;
+
+        if (nameInput) {
+            playerData.name = nameInput;
+            playerData.unit = unitSelect;
+            savePlayerData();
+
+            const modalEl = document.getElementById('charSetupModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
+            unlockAchievement('dog');
+            updateHUD();
+            renderViews();
+            showTacticalModal("BEM-VINDO AO ACC", `Operativo \({playerData.name} registrado com sucesso na\){playerData.unit}.`);
+        }
     });
 
+    // Navegação Sidebar
     document.querySelectorAll('.idroid-nav-link').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             audioSys.playClick();
             document.querySelectorAll('.idroid-nav-link').forEach(l => l.classList.remove('active'));
             link.classList.add('active');
-            const viewName = link.getAttribute('data-view');
-            switchView(viewName);
+
+            const view = link.getAttribute('data-view');
+            switchView(view);
+
             document.querySelector('.idroid-sidebar').classList.remove('mobile-open');
         });
     });
 
-    document.getElementById('sidebarToggle').addEventListener('click', () => {
-        audioSys.playClick();
-        document.querySelector('.idroid-sidebar').classList.toggle('mobile-open');
-    });
-
-    document.getElementById('themeSelector').addEventListener('change', (e) => {
-        gameState.theme = e.target.value;
-        document.documentElement.setAttribute('data-theme', gameState.theme);
-        saveGame();
-    });
-
-    document.getElementById('audioToggle').addEventListener('change', (e) => {
-        gameState.audioEnabled = e.target.checked;
-        audioSys.enabled = gameState.audioEnabled;
-        saveGame();
-    });
-
-    document.getElementById('hireSoldierBtn').addEventListener('click', () => {
-        if (gameState.gmp >= 10000) {
-            gameState.gmp -= 10000;
-            gameState.resources += 500;
-            addXp(150);
+    // Toggle Sidebar Mobile
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', () => {
             audioSys.playClick();
-            showModal("SOLDADO RECRUTADO", "Um soldado voluntário se juntou aos Diamond Dogs via extração Fulton / recrutamento na Mother Base. +150 XP!");
-            updateHud();
-        } else {
-            showModal("FUNDOS INSUFICIENTES", "GMP insuficiente para recrutar novos soldados.");
-        }
-    });
+            document.querySelector('.idroid-sidebar').classList.toggle('mobile-open');
+        });
+    }
 
-    document.getElementById('intelSearchInput').addEventListener('input', (e) => {
-        renderIntel(e.target.value);
-    });
-});
+    // Opções & Tema
+    const themeSelector = document.getElementById('themeSelector');
+    if (themeSelector) {
+        themeSelector.value = playerData.theme;
+        themeSelector.addEventListener('change', (e) => {
+            audioSys.playClick();
+            playerData.theme = e.target.value;
+            savePlayerData();
+            applyTheme(playerData.theme);
+        });
+    }
 
-function switchView(viewName) {
-    document.querySelectorAll('.view-section').forEach(sec => sec.style.display = 'none');
-    const target = document.getElementById(`view-${viewName}`);
-    if (target) target.style.display = 'block';
-    
-    if (viewName === 'home') {
-        document.getElementById('statMissionsCompleted').textContent = `${gameState.missionsCompleted.length}/9`;
-        document.getElementById('statAchievementsCount').textContent = `${gameState.achievementsUnlocked.length}/7`;
+    const audioToggle = document.getElementById('audioToggle');
+    if (audioToggle) {
+        audioToggle.checked = playerData.audioEnabled;
+        audioToggle.addEventListener('change', (e) => {
+            playerData.audioEnabled = e.target.checked;
+            audioSys.enabled = playerData.audioEnabled;
+            savePlayerData();
+        });
+    }
+
+    // Contratar soldado na Mother Base
+    const hireBtn = document.getElementById('hireSoldierBtn');
+    if (hireBtn) {
+        hireBtn.addEventListener('click', () => {
+            audioSys.playClick();
+            if (playerData.gmp >= 10000) {
+                playerData.gmp -= 10000;
+                playerData.platforms += 1;
+                addXP(100);
+                savePlayerData();
+                updateHUD();
+                renderMotherBase();
+                showTacticalModal("CONTRATAÇÃO BEM-SUCEDIDA", "Novo soldado integrado à Mother Base! +1 Plataforma expandida, +100 XP.");
+            } else {
+                showTacticalModal("RECURSOS INSUFICIENTES", "Você precisa de pelo menos 10.000 GMP para contratar novos operativos.");
+            }
+        });
+    }
+
+    // Busca em Intel
+    const intelSearch = document.getElementById('intelSearchInput');
+    if (intelSearch) {
+        intelSearch.addEventListener('input', (e) => {
+            renderIntelDatabase(e.target.value);
+        });
+    }
+
+    // --- CORREÇÃO DEFINITIVA DA TELA PRETA (BACKDROP DO MODAL) ---
+    const customModal = document.getElementById('customModal');
+    if (customModal) {
+        customModal.addEventListener('hidden.bs.modal', function () {
+            document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        });
     }
 }
 
-function showModal(title, text) {
-    audioSys.playClick();
-    document.getElementById('modalTitle').textContent = title;
-    document.getElementById('modalBodyText').textContent = text;
-    const modal = new bootstrap.Modal(document.getElementById('customModal'));
-    modal.show();
+// --- Sistema de Visualizações (Views) ---
+function switchView(viewId) {
+    document.querySelectorAll('.view-section').forEach(sec => sec.style.display = 'none');
+    const target = document.getElementById(`view-${viewId}`);
+    if (target) {
+        target.style.display = 'block';
+    }
+
+    if (viewId === 'deploy') renderCampaignMissions();
+    if (viewId === 'motherbase') renderMotherBase();
+    if (viewId === 'intel') renderIntelDatabase();
+    if (viewId === 'ranking') renderLeaderboard();
+    if (viewId === 'achievements') renderAchievements();
 }
 
-function initRadarCanvas() {
+function renderViews() {
+    updateHUD();
+    renderHomeStats();
+}
+
+// --- Atualização do HUD ---
+function updateHUD() {
+    document.getElementById('hudName').innerText = playerData.name || "VENOM SNAKE";
+    document.getElementById('hudUnitAndRank').innerText = `\({playerData.unit} |\){getRankName(playerData.level)}`;
+    document.getElementById('hudLevelText').innerText = `LVL ${playerData.level}`;
+    document.getElementById('hudXpText').innerText = `\({playerData.xp} /\){playerData.maxXp} XP`;
+    
+    const xpPercent = Math.min(100, (playerData.xp / playerData.maxXp) * 100);
+    document.getElementById('hudXpBar').style.width = xpPercent + '%';
+
+    document.getElementById('hudGmp').innerText = playerData.gmp.toLocaleString('pt-BR');
+    document.getElementById('hudResources').innerText = playerData.resources.toLocaleString('pt-BR');
+
+    const avatarIcon = document.getElementById('hudAvatarIcon');
+    if (avatarIcon) {
+        avatarIcon.className = getAvatarIconClass(playerData.avatar);
+    }
+}
+
+function getAvatarIconClass(avatar) {
+    switch(avatar) {
+        case 'Big Boss': return 'fa-solid fa-skull fa-2x';
+        case 'Quiet': return 'fa-solid fa-crosshairs fa-2x';
+        case 'Kazuhira Miller': return 'fa-solid fa-glasses fa-2x';
+        case 'Ocelot': return 'fa-solid fa-hat-cowboy fa-2x';
+        case 'DD': return 'fa-solid fa-dog fa-2x';
+        default: return 'fa-solid fa-user-ninja fa-2x';
+    }
+}
+
+function getRankName(lvl) {
+    if (lvl >= 40) return "Legendary Boss";
+    if (lvl >= 30) return "Elite Diamond Dog";
+    if (lvl >= 20) return "Commander";
+    if (lvl >= 10) return "Operative";
+    if (lvl >= 5) return "Soldier";
+    return "Rookie";
+}
+
+function addXP(amount) {
+    playerData.xp += amount;
+    while (playerData.xp >= playerData.maxXp) {
+        playerData.xp -= playerData.maxXp;
+        playerData.level += 1;
+        playerData.maxXp = Math.floor(playerData.maxXp * 1.3);
+        showTacticalModal("SUBIU DE NÍVEL!", `Parabéns, Chefe! Você alcançou o nível \({playerData.level} (\){getRankName(playerData.level)}).`);
+        if (playerData.level >= 5) unlockAchievement('tactical');
+        if (playerData.level >= 25) unlockAchievement('boss');
+    }
+    savePlayerData();
+    updateHUD();
+}
+
+// --- Estatísticas Início / Radar ---
+function renderHomeStats() {
+    document.getElementById('statMissionsCompleted').innerText = `${playerData.missionsCompleted.length}/9`;
+    document.getElementById('statPlatformsBuilt').innerText = playerData.platforms;
+    document.getElementById('statAchievementsCount').innerText = `${playerData.achievements.length}/7`;
+}
+
+function initRadar() {
     const canvas = document.getElementById('radarCanvas');
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     canvas.width = 150;
     canvas.height = 150;
-    let angle = 0;
 
+    let angle = 0;
     function drawRadar() {
         ctx.clearRect(0, 0, 150, 150);
-        ctx.strokeStyle = 'rgba(255, 102, 0, 0.2)';
+        
+        ctx.strokeStyle = 'rgba(255, 102, 0, 0.3)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.arc(75, 75, 60, 0, Math.PI * 2);
@@ -305,20 +380,21 @@ function initRadarCanvas() {
         ctx.save();
         ctx.translate(75, 75);
         ctx.rotate(angle);
-        const gradient = ctx.createLinearGradient(0, 0, 60, 0);
-        gradient.addColorStop(0, 'rgba(255, 102, 0, 0.8)');
-        gradient.addColorStop(1, 'rgba(255, 102, 0, 0)');
-        ctx.fillStyle = gradient;
+        const grad = ctx.createLinearGradient(0, 0, 60, 0);
+        grad.addColorStop(0, 'rgba(255, 102, 0, 0.6)');
+        grad.addColorStop(1, 'rgba(255, 102, 0, 0)');
+        ctx.fillStyle = grad;
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.arc(0, 0, 60, -0.2, 0);
+        ctx.arc(0, 0, 60, 0, Math.PI / 4);
         ctx.lineTo(0, 0);
         ctx.fill();
         ctx.restore();
 
         ctx.fillStyle = '#ffcc00';
-        ctx.fillRect(95, 45, 4, 4);
-        ctx.fillRect(45, 100, 4, 4);
+        ctx.beginPath();
+        ctx.arc(95, 55, 3, 0, Math.PI * 2);
+        ctx.fill();
 
         angle += 0.03;
         requestAnimationFrame(drawRadar);
@@ -326,191 +402,14 @@ function initRadarCanvas() {
     drawRadar();
 }
 
-// Campaign Missions
-const campaignMissions = [
-    { id: 1, name: "Missão 1: Despertar", region: "Hospital de Chipre", desc: "Escape do cerco ao hospital com Ishmael e evite os esquadrões de assassinos XOF.", rewardXp: 500, rewardGmp: 50000 },
-    { id: 2, name: "Missão 2: Membros Fantasmas", region: "Afeganistão", desc: "Infiltre-se no Quartel Wakh Sind e resgate Kazuhira Miller.", rewardXp: 800, rewardGmp: 80000 },
-    { id: 3, name: "Missão 3: O Caminho do Herói", region: "Afeganistão", desc: "Elimine o comandante Spetsnaz Vasily Lipanovich.", rewardXp: 1000, rewardGmp: 100000 },
-    { id: 4, name: "Missão 4: C2W", region: "Afeganistão", desc: "Destrua os equipamentos de comunicação no Radar de Comunicações Oriental.", rewardXp: 1200, rewardGmp: 120000 },
-    { id: 5, name: "Missão 5: Além da Cerca", region: "Afeganistão", desc: "Extraia o engenheiro prisioneiro na Mina Bheung.", rewardXp: 1500, rewardGmp: 150000 },
-    { id: 6, name: "Missão 6: Anjo com Asas Quebradas", region: "Afeganistão", desc: "Localize e extraia o contato da CIA Code Talker / Malak.", rewardXp: 1800, rewardGmp: 180000 },
-    { id: 7, name: "Missão 7: Code Talker", region: "África (Campo PF)", desc: "Infiltre-se no Aeroporto Nova Braga e extraia Code Talker da mansão.", rewardXp: 2200, rewardGmp: 220000 },
-    { id: 8, name: "Missão 8: Skull Face", region: "África (Smasei)", desc: "Enfronte Skull Face no OKB Zero e testemunhe a ativação do Sahelanthropus.", rewardXp: 3000, rewardGmp: 300000 },
-    { id: 9, name: "Missão 9: Luzes Brilhantes, Mesmo na Morte", region: "Mother Base", desc: "Contenha o surto de parasita das cordas vocais na Instalação de Quarentena.", rewardXp: 5000, rewardGmp: 500000 }
-];
-
-function renderCampaign() {
+// --- Campanha / Deslocamento ---
+function renderCampaignMissions() {
     const grid = document.getElementById('campaignMissionsGrid');
-    grid.innerHTML = "";
+    if (!grid) return;
+    grid.innerHTML = '';
+
     campaignMissions.forEach(m => {
-        const completed = gameState.missionsCompleted.includes(m.id);
+        const isCompleted = playerData.missionsCompleted.includes(m.id);
         const col = document.createElement('div');
-        col.className = "col-md-4";
+        col.className = 'col-md-4';
         col.innerHTML = `
-            <div class="holo-panel p-4 h-100 d-flex flex-column justify-content-between ${completed ? 'border-success' : ''}">
-                <div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="badge bg-dark text-warning border border-warning">${m.region}</span>
-                        ${completed ? '<span class="badge bg-success"><i class="fa-solid fa-check me-1"></i> CONCLUÍDA</span>' : '<span class="badge bg-secondary">PENDENTE</span>'}
-                    </div>
-                    <h4 class="text-white">${m.name}</h4>
-                    <p class="text-muted small">${m.desc}</p>
-                </div>
-                <div>
-                    <div class="text-warning small mb-3">Recompensa: +${m.rewardXp} XP | +${m.rewardGmp.toLocaleString('pt-BR')} GMP</div>
-                    <button class="btn btn-tactical w-100 ${completed ? 'btn-outline-success text-success' : ''}" onclick="playMission(${m.id})">
-                        ${completed ? 'REPETIR OPERAÇÃO' : 'DESLOCAR PARA OPERAÇÃO'}
-                    </button>
-                </div>
-            </div>
-        `;
-        grid.appendChild(col);
-    });
-}
-
-function playMission(id) {
-    audioSys.playClick();
-    const mission = campaignMissions.find(m => m.id === id);
-    if (!gameState.missionsCompleted.includes(id)) {
-        gameState.missionsCompleted.push(id);
-        addXp(mission.rewardXp);
-        gameState.gmp += mission.rewardGmp;
-        showModal("MISSÃO BEM-SUCEDIDA", `Operação ${mission.name} concluída com sucesso! Adquiriu +${mission.rewardXp} XP e +${mission.rewardGmp.toLocaleString('pt-BR')} GMP.`);
-    } else {
-        addXp(Math.floor(mission.rewardXp / 3));
-        showModal("OPERAÇÃO REPETIDA", `Replay bem-sucedido. Bônus tático concedido: +${Math.floor(mission.rewardXp / 3)} XP.`);
-    }
-    saveGame();
-    renderCampaign();
-    checkAchievements();
-}
-
-function renderMotherBase() {
-    const grid = document.getElementById('motherBasePlatformsGrid');
-    grid.innerHTML = "";
-    Object.keys(gameState.platforms).forEach(key => {
-        const p = gameState.platforms[key];
-        const upgradeCost = p.level * 25000;
-        const col = document.createElement('div');
-        col.className = "col-md-4";
-        col.innerHTML = `
-            <div class="holo-panel p-4 h-100 d-flex flex-column justify-content-between">
-                <div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="badge bg-warning text-dark">PLATAFORMA</span>
-                        <span class="text-warning">LVL ${p.level} / 10</span>
-                    </div>
-                    <h4 class="text-white">${p.name}</h4>
-                    <p class="text-muted small">Gera GMP, recursos e aumenta a prontidão operacional dos Diamond Dogs.</p>
-                </div>
-                <div>
-                    <div class="text-muted small mb-2">Custo de Upgrade: ${upgradeCost.toLocaleString('pt-BR')} GMP</div>
-                    <button class="btn btn-tactical w-100" onclick="upgradePlatform('${key}')">MELHORAR PLATAFORMA</button>
-                </div>
-            </div>
-        `;
-        grid.appendChild(col);
-    });
-}
-
-function upgradePlatform(key) {
-    audioSys.playClick();
-    const p = gameState.platforms[key];
-    const cost = p.level * 25000;
-    if (p.level >= 10) {
-        showModal("NÍVEL MÁXIMO", "Esta plataforma da Mother Base atingiu o nível operacional máximo.");
-        return;
-    }
-    if (gameState.gmp >= cost) {
-        gameState.gmp -= cost;
-        p.level++;
-        addXp(300);
-        saveGame();
-        renderMotherBase();
-        updateHud();
-        showModal("PLATAFORMA MELHORADA", `${p.name} melhorada para o Nível ${p.level}! +300 XP.`);
-        checkAchievements();
-    } else {
-        showModal("GMP INSUFICIENTE", `GMP necessário para o upgrade: ${cost.toLocaleString('pt-BR')}`);
-    }
-}
-
-let activeGameType = null;
-
-function openMiniGame(type) {
-    audioSys.playClick();
-    activeGameType = type;
-    document.getElementById('miniGameArena').style.display = 'block';
-    const content = document.getElementById('miniGameContent');
-    const title = document.getElementById('activeGameTitle');
-
-    if (type === 'quiz') {
-        title.textContent = "QUIZ TÁTICO MGSV";
-        initQuizGame(content);
-    } else if (type === 'stealth') {
-        title.textContent = "SIMULAÇÃO DE INFILTRAÇÃO STEALTH";
-        initStealthGame(content);
-    } else if (type === 'fulton') {
-        title.textContent = "RECUPERAÇÃO FULTON";
-        initFultonGame(content);
-    } else if (type === 'memory') {
-        title.textContent = "JOGO DA MEMÓRIA DOS DIAMOND DOGS";
-        initMemoryGame(content);
-    } else if (type === 'charid') {
-        title.textContent = "IDENTIFICAÇÃO DE PERSONAGEM";
-        initCharIdGame(content);
-    } else if (type === 'wordsearch') {
-        title.textContent = "CAÇA-PALAVRAS TÁTICO";
-        initWordSearchGame(content);
-    }
-    document.getElementById('miniGameArena').scrollIntoView({ behavior: 'smooth' });
-}
-
-function closeMiniGame() {
-    audioSys.playClick();
-    document.getElementById('miniGameArena').style.display = 'none';
-    activeGameType = null;
-}
-
-const quizQuestions = [ /* ... all 28 questions ... */ /* (same as original, omitted for brevity) */ ];
-let currentQuizIndex = 0;
-let quizScore = 0;
-
-function initQuizGame(container) { /* ... */ }
-function renderQuizQuestion(container) { /* ... */ }
-function answerQuiz(selectedIdx) { /* ... */ }
-
-function initStealthGame(container) { /* ... */ }
-
-let fultonScore = 0;
-let fultonCombo = 0;
-let fultonTimer = 30;
-function initFultonGame(container) { /* ... */ }
-function startFultonAction() { /* ... */ }
-
-function initMemoryGame(container) { /* ... */ }
-
-const charIdList = [ /* ... */ ];
-let charIdIndex = 0;
-let charIdScore = 0;
-function initCharIdGame(container) { /* ... */ }
-function renderCharIdQuestion(container) { /* ... */ }
-function answerCharId(selected, correct) { /* ... */ }
-
-function initWordSearchGame(container) { /* ... */ }
-
-const intelDatabase = [ /* ... */ ];
-function renderIntel(filter = "") { /* ... */ }
-
-const achievementsList = [ /* ... */ ];
-function renderAchievements() { /* ... */ }
-function checkAchievements() { /* ... */ }
-
-function renderLeaderboard() { /* ... */ }
-
-function resetSaveData() {
-    if (confirm("Tem certeza de que deseja apagar todos os dados salvos dos Diamond Dogs e reiniciar?")) {
-        localStorage.removeItem('mgsv_idroid_save_ptbr');
-        location.reload();
-    }
-}
