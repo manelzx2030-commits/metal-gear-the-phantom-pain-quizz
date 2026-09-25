@@ -1,0 +1,160 @@
+:root {
+    --bg-primary: #0a0e12;
+    --bg-secondary: #161b22;
+    --accent-green: #1b3022;
+    --accent-orange: #ff6600;
+    --alert-yellow: #ffcc00;
+    --hud-glow: rgba(255, 102, 0, 0.4);
+    --text-main: #e0e0e0;
+    --border-color: rgba(255, 102, 0, 0.3);
+}
+
+[data-theme="night-ops"] {
+    --bg-primary: #020617;
+    --bg-secondary: #0f172a;
+    --accent-green: #064e3b;
+    --accent-orange: #38bdf8;
+    --alert-yellow: #facc15;
+    --hud-glow: rgba(56, 189, 248, 0.4);
+    --text-main: #e2e8f0;
+    --border-color: rgba(56, 189, 248, 0.3);
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    font-family: 'Share Tech Mono', monospace;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+h1, h2, h3, h4, h5, h6, .brand-font {
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1.5px;
+}
+
+/* CRT Scanlines Overlay */
+.scanlines {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background-size: 100% 4px, 6px 100%;
+    z-index: 9999;
+}
+
+@keyframes crtFlicker {
+    0% { opacity: 0.97; }
+    50% { opacity: 1; }
+    100% { opacity: 0.98; }
+}
+.crt-container {
+    animation: crtFlicker 0.15s infinite;
+}
+
+/* Holographic Panels */
+.holo-panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: inset 0 0 15px var(--hud-glow), 0 0 10px var(--hud-glow);
+    border-radius: 4px;
+    position: relative;
+    backdrop-filter: blur(5px);
+}
+.holo-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 10px; height: 10px;
+    border-top: 2px solid var(--accent-orange);
+    border-left: 2px solid var(--accent-orange);
+}
+.holo-panel::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0; width: 10px; height: 10px;
+    border-bottom: 2px solid var(--accent-orange);
+    border-right: 2px solid var(--accent-orange);
+}
+
+/* Buttons & Inputs */
+.btn-tactical {
+    background: transparent;
+    border: 1px solid var(--accent-orange);
+    color: var(--accent-orange);
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 10px 20px;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+}
+.btn-tactical:hover {
+    background: var(--accent-orange);
+    color: var(--bg-primary);
+    box-shadow: 0 0 15px var(--accent-orange);
+}
+.form-control, .form-select {
+    background-color: var(--bg-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    font-family: 'Share Tech Mono', monospace;
+    border-radius: 4px;
+}
+.form-control:focus {
+    border-color: var(--accent-orange) !important;
+    box-shadow: 0 0 10px var(--hud-glow) !important;
+}
+
+/* Radar Canvas */
+#radarCanvas {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-orange);
+    background: radial-gradient(circle, rgba(27,48,34,0.8) 0%, rgba(10,14,18,0.95) 100%);
+    box-shadow: 0 0 15px var(--hud-glow);
+}
+
+/* Sidebar Navigation */
+.idroid-sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    top: 0; left: 0;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+.idroid-nav-link {
+    color: var(--text-main);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+}
+.idroid-nav-link:hover, .idroid-nav-link.active {
+    background: rgba(255, 102, 0, 0.1);
+    border-left-color: var(--accent-orange);
+    color: var(--accent-orange);
+}
+
+.main-content {
+    margin-left: 260px;
+    padding: 20px;
+    min-height: 100vh;
+}
+@media (max-width: 992px) {
+    .idroid-sidebar { transform: translateX(-100%); }
+    .idroid-sidebar.mobile-open { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+}
