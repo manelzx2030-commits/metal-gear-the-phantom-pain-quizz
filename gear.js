@@ -136,7 +136,7 @@ const CONFIG = {
     { id: 'tape_phantom', title: 'A Phantom Pain', artist: 'Trilha original', foundAt: 'Cabana ao nordeste do Wakh Sind Barracks', requiresMission: 0, youtubeId: null, youtubeQuery: 'A Phantom Pain theme Metal Gear Solid V soundtrack' },
     { id: 'tape_snake_eater', title: 'Snake Eater', artist: 'Vocal: Cynthia Harrell (tema de MGS3)', foundAt: 'Posto de guarda oeste da Munoko ya Nioka Station', requiresMission: 5, youtubeId: null, youtubeQuery: 'Snake Eater Cynthia Harrell Metal Gear Solid' },
     // Fita adicionada nesta revisão — a mais dramática do catálogo.
-    { id: 'tape_herestoyou', title: "Here's to You (Nicola and Bart)", artist: 'Joan Baez & Ennio Morricone', foundAt: 'Tocada ao lado do memorial da Mother Base — tributo aos caídos da Diamond Dogs', requiresMission: 8, dramatic: true, youtubeId: null, youtubeQuery: "Joan Baez Ennio Morricone Here's to You Nicola and Bart" },
+    { id: 'tape_to_you', title: "Here's to You (Nicola and Bart)", artist: 'Joan Baez & Ennio Morricone', foundAt: 'Tocada ao lado do memorial da Mother Base — tributo aos caídos da Diamond Dogs', requiresMission: 8, dramatic: true, youtubeId: null, youtubeQuery: "pVu1SfaoGdo" },
   ],
 
   cassetteTapesLicensed: [
