@@ -1,7 +1,6 @@
 // ==========================================
 // MGSV iDROID TACTICAL SIMULATOR - GEAR.JS
 // ==========================================
-
 // --- Sistema de Áudio (Web Audio API) ---
 class AudioSystem {
     constructor() {
@@ -48,7 +47,6 @@ class AudioSystem {
         } catch(e) {}
     }
 }
-
 const audioSys = new AudioSystem();
 
 // --- Estado do Jogador / LocalStorage ---
@@ -119,8 +117,8 @@ function initBootSequence() {
     const bootStatusText = document.getElementById('bootStatusText');
     const bootDeployContainer = document.getElementById('bootDeployContainer');
     const bootScreen = document.getElementById('bootScreen');
-
     let progress = 0;
+
     const interval = setInterval(() => {
         progress += Math.floor(Math.random() * 15) + 5;
         if (progress >= 100) {
@@ -171,20 +169,17 @@ function setupEventListeners() {
         audioSys.playClick();
         const nameInput = document.getElementById('setupName').value.trim();
         const unitSelect = document.getElementById('setupUnit').value;
-
         if (nameInput) {
             playerData.name = nameInput;
             playerData.unit = unitSelect;
             savePlayerData();
-
             const modalEl = document.getElementById('charSetupModal');
             const modal = bootstrap.Modal.getInstance(modalEl);
             modal.hide();
-
             unlockAchievement('dog');
             updateHUD();
             renderViews();
-            showTacticalModal("BEM-VINDO AO ACC", `Operativo \({playerData.name} registrado com sucesso na\){playerData.unit}.`);
+            showTacticalModal("BEM-VINDO AO ACC", `Operativo <strong>${playerData.name}</strong> registrado com sucesso na <strong>${playerData.unit}</strong>.`);
         }
     });
 
@@ -195,10 +190,8 @@ function setupEventListeners() {
             audioSys.playClick();
             document.querySelectorAll('.idroid-nav-link').forEach(l => l.classList.remove('active'));
             link.classList.add('active');
-
             const view = link.getAttribute('data-view');
             switchView(view);
-
             document.querySelector('.idroid-sidebar').classList.remove('mobile-open');
         });
     });
@@ -280,7 +273,6 @@ function switchView(viewId) {
     if (target) {
         target.style.display = 'block';
     }
-
     if (viewId === 'deploy') renderCampaignMissions();
     if (viewId === 'motherbase') renderMotherBase();
     if (viewId === 'intel') renderIntelDatabase();
@@ -296,16 +288,14 @@ function renderViews() {
 // --- Atualização do HUD ---
 function updateHUD() {
     document.getElementById('hudName').innerText = playerData.name || "VENOM SNAKE";
-    document.getElementById('hudUnitAndRank').innerText = `\({playerData.unit} |\){getRankName(playerData.level)}`;
+    document.getElementById('hudUnitAndRank').innerText = `${playerData.unit} | ${getRankName(playerData.level)}`;
     document.getElementById('hudLevelText').innerText = `LVL ${playerData.level}`;
-    document.getElementById('hudXpText').innerText = `\({playerData.xp} /\){playerData.maxXp} XP`;
+    document.getElementById('hudXpText').innerText = `${playerData.xp} / ${playerData.maxXp} XP`;
     
     const xpPercent = Math.min(100, (playerData.xp / playerData.maxXp) * 100);
     document.getElementById('hudXpBar').style.width = xpPercent + '%';
-
     document.getElementById('hudGmp').innerText = playerData.gmp.toLocaleString('pt-BR');
     document.getElementById('hudResources').innerText = playerData.resources.toLocaleString('pt-BR');
-
     const avatarIcon = document.getElementById('hudAvatarIcon');
     if (avatarIcon) {
         avatarIcon.className = getAvatarIconClass(playerData.avatar);
@@ -338,7 +328,7 @@ function addXP(amount) {
         playerData.xp -= playerData.maxXp;
         playerData.level += 1;
         playerData.maxXp = Math.floor(playerData.maxXp * 1.3);
-        showTacticalModal("SUBIU DE NÍVEL!", `Parabéns, Chefe! Você alcançou o nível \({playerData.level} (\){getRankName(playerData.level)}).`);
+        showTacticalModal("SUBIU DE NÍVEL!", `Parabéns, Chefe! Você alcançou o nível <strong>${playerData.level}</strong> (${getRankName(playerData.level)}).`);
         if (playerData.level >= 5) unlockAchievement('tactical');
         if (playerData.level >= 25) unlockAchievement('boss');
     }
@@ -359,7 +349,6 @@ function initRadar() {
     const ctx = canvas.getContext('2d');
     canvas.width = 150;
     canvas.height = 150;
-
     let angle = 0;
     function drawRadar() {
         ctx.clearRect(0, 0, 150, 150);
@@ -371,12 +360,10 @@ function initRadar() {
         ctx.arc(75, 75, 35, 0, Math.PI * 2);
         ctx.arc(75, 75, 15, 0, Math.PI * 2);
         ctx.stroke();
-
         ctx.beginPath();
         ctx.moveTo(75, 15); ctx.lineTo(75, 135);
         ctx.moveTo(15, 75); ctx.lineTo(135, 75);
         ctx.stroke();
-
         ctx.save();
         ctx.translate(75, 75);
         ctx.rotate(angle);
@@ -390,12 +377,10 @@ function initRadar() {
         ctx.lineTo(0, 0);
         ctx.fill();
         ctx.restore();
-
         ctx.fillStyle = '#ffcc00';
         ctx.beginPath();
         ctx.arc(95, 55, 3, 0, Math.PI * 2);
         ctx.fill();
-
         angle += 0.03;
         requestAnimationFrame(drawRadar);
     }
@@ -407,9 +392,179 @@ function renderCampaignMissions() {
     const grid = document.getElementById('campaignMissionsGrid');
     if (!grid) return;
     grid.innerHTML = '';
-
     campaignMissions.forEach(m => {
         const isCompleted = playerData.missionsCompleted.includes(m.id);
         const col = document.createElement('div');
         col.className = 'col-md-4';
+
         col.innerHTML = `
+            <div class="mission-card h-100 p-3 ${isCompleted ? 'completed' : ''}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1">${m.title}</h6>
+                        <span class="badge bg-secondary">${m.region}</span>
+                    </div>
+                    <span class="badge bg-warning text-dark">${m.xp} XP</span>
+                </div>
+                <p class="small text-muted mt-2">${m.desc}</p>
+                <button class="btn btn-outline-warning btn-sm w-100 mt-2" 
+                        ${isCompleted ? 'disabled' : `onclick="startMission(${m.id})"`}>
+                    ${isCompleted ? '✓ Concluída' : 'Iniciar Missão'}
+                </button>
+            </div>
+        `;
+        grid.appendChild(col);
+    });
+}
+
+// Função para iniciar missão
+function startMission(missionId) {
+    audioSys.playClick();
+    const mission = campaignMissions.find(m => m.id === missionId);
+    if (!mission) return;
+
+    playerData.missionsCompleted.push(missionId);
+    playerData.xp += mission.xp;
+    playerData.gmp += mission.gmp;
+
+    if (missionId % 3 === 0) {
+        playerData.gmp += 10000;
+        showTacticalModal("RECOMPENSA ESPECIAL!", "+10.000 GMP por missão múltipla!");
+    }
+
+    savePlayerData();
+    updateHUD();
+    renderViews();
+    showTacticalModal("MISSÃO CONCLUÍDA!", `${mission.title} - ${mission.xp} XP e ${mission.gmp.toLocaleString('pt-BR')} GMP ganhos!`);
+}
+
+// --- Mother Base ---
+function renderMotherBase() {
+    const container = document.getElementById('motherBaseContainer');
+    if (!container) return;
+    container.innerHTML = `
+        <div class="motherbase-header text-center">
+            <h4>Mother Base - Plataformas: <strong>${playerData.platforms}</strong></h4>
+        </div>
+        <div class="text-center mt-4">
+            <button id="hireSoldierBtn" class="btn btn-warning px-5 py-3 fw-bold">
+                <i class="fa-solid fa-hands-holding-diamond"></i> CONTRATAR SOLDADO (10.000 GMP)
+            </button>
+        </div>
+        <div class="text-center mt-4">
+            <span class="badge bg-success fs-5">Plataformas Ativas: ${playerData.platforms}</span>
+        </div>
+    `;
+}
+
+// --- Intel Database ---
+function renderIntelDatabase(searchTerm = "") {
+    const container = document.getElementById('intelDatabaseContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const filtered = intelDatabaseData.filter(item => 
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        item.desc.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<p class="text-center text-muted">Nenhum resultado encontrado.</p>`;
+        return;
+    }
+
+    filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'intel-card p-4 mb-3';
+        card.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-info-circle text-warning me-3 fs-3"></i>
+                <div>
+                    <h6 class="mb-1">${item.title}</h6>
+                    <span class="badge bg-primary">${item.category}</span>
+                    <p class="small text-muted mt-2">${item.desc}</p>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// --- Leaderboard (simulado) ---
+function renderLeaderboard() {
+    const container = document.getElementById('leaderboardContainer');
+    if (!container) return;
+    container.innerHTML = `
+        <h5 class="text-center mb-4">Ranking de Operativos</h5>
+        <div class="list-group">
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <span><strong>1.</strong> Venom Snake</span>
+                <span class="text-warning">Level 99 • 1.2M XP</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <span><strong>2.</strong> Big Boss</span>
+                <span class="text-warning">Level 88 • 950K XP</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <span><strong>3.</strong> Ocelot</span>
+                <span class="text-warning">Level 75 • 720K XP</span>
+            </div>
+        </div>
+    `;
+}
+
+// --- Achievements ---
+function renderAchievements() {
+    const container = document.getElementById('achievementsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    achievementsData.forEach(ach => {
+        const achieved = playerData.achievements.includes(ach.id);
+        const badge = document.createElement('div');
+        badge.className = `achievement-badge ${achieved ? 'achieved' : ''} mb-3`;
+        badge.innerHTML = `
+            <i class="fa-solid ${ach.icon} achievement-icon"></i>
+            <div>
+                <h6>${ach.title}</h6>
+                <p class="small">${ach.desc}</p>
+            </div>
+            ${achieved ? `<span class="badge bg-success">Concluído</span>` : ''}
+        `;
+        container.appendChild(badge);
+    });
+}
+
+// --- Modal Tático ---
+function showTacticalModal(title, message) {
+    const modalTitle = document.getElementById('tacticalModalTitle');
+    const modalBody = document.getElementById('tacticalModalBody');
+    const modal = new bootstrap.Modal(document.getElementById('tacticalModal'));
+    
+    modalTitle.innerHTML = title;
+    modalBody.innerHTML = message;
+    modal.show();
+}
+
+// --- Conquistas ---
+function unlockAchievement(id) {
+    if (!playerData.achievements.includes(id)) {
+        playerData.achievements.push(id);
+        if (id === 'tactical') showTacticalModal("CONQUISTA DESBLOQUEADA!", "Tactical Genius desbloqueado!");
+        if (id === 'boss') showTacticalModal("LEGENDÁRIO!", "Big Boss desbloqueado!");
+        savePlayerData();
+    }
+}
+
+// --- Aplicar Tema Diamond Dogs ---
+function applyTheme(theme) {
+    if (theme === "diamond-dogs") {
+        document.body.classList.add('diamond-theme');
+        document.body.classList.remove('black-theme');
+    }
+}
+
+// Inicialização final
+function init() {
+    // Tudo já está no DOMContentLoaded
+}
