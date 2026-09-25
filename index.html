@@ -1,406 +1,338 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="diamond-dogs">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diamond Dogs Tactical Simulator | MGSV iDroid (PT-BR)</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/gear.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diamond Dogs Tactical Simulator</title>
+
+<!-- Bootstrap 5 -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<!-- Google Fonts: monoespaçado pro HUD, condensado tático pros títulos -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/gear.css">
 </head>
-<body class="crt-container">
-    <div class="scanlines"></div>
+<body>
 
-    <!-- BOOT SCREEN -->
-    <div id="bootScreen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease;">
-        <div class="text-center p-4 holo-panel max-w-lg mx-auto" style="width: 420px; max-width: 90%;">
-            <div class="mb-3 text-warning">
-                <i class="fa-solid fa-satellite-dish fa-3x fa-beat"></i>
-            </div>
-            <h1 class="text-warning brand-font mb-2">DIAMOND DOGS</h1>
-            <h4 class="text-secondary mb-4">SIMULADOR TÁTICO v5.0</h4>
-            <div class="progress mb-4" style="height: 6px; background: #111;">
-                <div id="bootProgressBar" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
-            </div>
-            <p id="bootStatusText" class="text-muted small mb-4">INICIALIZANDO ACC & KERNEL DO IDROID...</p>
-            <div id="bootDeployContainer" style="display: none;">
-                <h3 class="text-white mb-3">"Bem-vindo de volta, Chefe."</h3>
-                <button id="deployMissionBtn" class="btn btn-tactical w-100">
-                    <i class="fa-solid fa-power-off me-2"></i> INICIAR MISSÃO
-                </button>
-            </div>
-        </div>
+<!-- ===================================================
+     SCANLINES / VIGNETTE OVERLAY (fixo, sobre tudo)
+=================================================== -->
+<div class="scanline-overlay" aria-hidden="true"></div>
+<div class="vignette-overlay" aria-hidden="true"></div>
+
+<!-- ===================================================
+     TELA DE BOOT (iDroid startup)
+=================================================== -->
+<section id="screen-boot" class="app-screen boot-screen active-screen">
+  <div class="boot-content">
+    <div class="boot-logo">iDROID</div>
+    <div class="boot-bar-track">
+      <div class="boot-bar-fill" id="bootBarFill"></div>
     </div>
+    <div class="boot-log" id="bootLog"></div>
+  </div>
+</section>
 
-    <!-- CHARACTER SETUP MODAL -->
-    <div id="charSetupModal" class="modal fade" data-bs-backdrop="static" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content holo-panel text-white">
-                <div class="modal-header border-bottom border-secondary">
-                    <h5 class="modal-title text-warning"><i class="fa-solid fa-user-shield me-2"></i> REGISTRO DE OPERATIVO</h5>
-                </div>
-                <div class="modal-body">
-                    <form id="charSetupForm">
-                        <div class="mb-3">
-                            <label class="form-label text-warning small">CODENOME / NOME DO SOLDADO</label>
-                            <input type="text" id="setupName" class="form-control" required placeholder="ex: Ahab, Ishmael, Boss">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label text-warning small">DIVISÃO DOS DIAMOND DOGS</label>
-                            <select id="setupUnit" class="form-select">
-                                <option value="Unidade de Combate">Unidade de Combate</option>
-                                <option value="Equipe de Apoio">Equipe de Apoio</option>
-                                <option value="Equipe de Intel">Equipe de Intel</option>
-                                <option value="Equipe de P&D">Equipe de P&D</option>
-                                <option value="Equipe de Segurança">Equipe de Segurança</option>
-                                <option value="Equipe Médica">Equipe Médica</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label text-warning small">SELECIONAR AVATAR DO OPERATIVO</label>
-                            <div class="row g-2" id="avatarSelector">
-                                <div class="col-4 text-center">
-                                    <div class="avatar-option p-2 holo-panel active border-warning" data-avatar="Venom Snake" style="cursor: pointer;">
-                                        <i class="fa-solid fa-user-ninja fa-2x text-warning"></i>
-                                        <div class="small mt-1">Venom Snake</div>
-                                    </div>
-                                </div>
-                                <div class="col-4 text-center">
-                                    <div class="avatar-option p-2 holo-panel" data-avatar="Big Boss" style="cursor: pointer;">
-                                        <i class="fa-solid fa-skull fa-2x text-warning"></i>
-                                        <div class="small mt-1">Big Boss</div>
-                                    </div>
-                                </div>
-                                <div class="col-4 text-center">
-                                    <div class="avatar-option p-2 holo-panel" data-avatar="Quiet" style="cursor: pointer;">
-                                        <i class="fa-solid fa-crosshairs fa-2x text-warning"></i>
-                                        <div class="small mt-1">Quiet</div>
-                                    </div>
-                                </div>
-                                <div class="col-4 text-center">
-                                    <div class="avatar-option p-2 holo-panel" data-avatar="Kazuhira Miller" style="cursor: pointer;">
-                                        <i class="fa-solid fa-glasses fa-2x text-warning"></i>
-                                        <div class="small mt-1">Miller</div>
-                                    </div>
-                                </div>
-                                <div class="col-4 text-center">
-                                    <div class="avatar-option p-2 holo-panel" data-avatar="Ocelot" style="cursor: pointer;">
-                                        <i class="fa-solid fa-hat-cowboy fa-2x text-warning"></i>
-                                        <div class="small mt-1">Ocelot</div>
-                                    </div>
-                                </div>
-                                <div class="col-4 text-center">
-                                    <div class="avatar-option p-2 holo-panel" data-avatar="DD" style="cursor: pointer;">
-                                        <i class="fa-solid fa-dog fa-2x text-warning"></i>
-                                        <div class="small mt-1">D-Dog</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-tactical w-100 mt-2">CONFIRMAR REGISTRO</button>
-                    </form>
-                </div>
-            </div>
+<!-- ===================================================
+     TELA DE BOAS-VINDAS
+=================================================== -->
+<section id="screen-welcome" class="app-screen welcome-screen">
+  <div class="hud-frame welcome-frame">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <p class="eyebrow-label">DIAMOND DOGS // PRIVATE MILITARY COMPANY</p>
+    <h1 class="dd-logo">DIAMOND DOGS<br><span>TACTICAL SIMULATOR</span></h1>
+
+    <p class="welcome-message" id="welcomeMessage">Bem-vindo de volta, Boss.</p>
+
+    <button type="button" class="btn-tactical" id="btnDeploy">
+      <span class="btn-tactical-icon">▶</span> INICIAR MISSÃO
+    </button>
+
+    <p class="radio-static">FREQ 141.80 — CONEXÃO ESTABELECIDA</p>
+  </div>
+</section>
+
+<!-- ===================================================
+     CRIAÇÃO DE PERSONAGEM
+=================================================== -->
+<section id="screen-create" class="app-screen create-screen">
+  <div class="hud-frame create-frame">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <p class="eyebrow-label">REGISTRO DE SOLDADO</p>
+    <h2 class="panel-title">Alistar Novo Soldado</h2>
+
+    <form id="formCreateSoldier" novalidate>
+      <div class="mb-4">
+        <label for="soldierName" class="tac-label">Codinome</label>
+        <input type="text" class="tac-input" id="soldierName" placeholder="ex: VENOM" maxlength="18" required>
+      </div>
+
+      <div class="mb-4">
+        <span class="tac-label d-block">Atribuir Unidade</span>
+        <div class="option-grid" id="unitGrid" role="radiogroup" aria-label="Atribuir Unidade">
+          <!-- preenchido via JS -->
         </div>
+      </div>
+
+      <div class="mb-4">
+        <span class="tac-label d-block">Selecionar Avatar</span>
+        <div class="option-grid avatar-grid" id="avatarGrid" role="radiogroup" aria-label="Selecionar Avatar">
+          <!-- preenchido via JS -->
+        </div>
+      </div>
+
+      <button type="submit" class="btn-tactical w-100">
+        <span class="btn-tactical-icon">✓</span> CONFIRMAR ALISTAMENTO
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- ===================================================
+     DASHBOARD PRINCIPAL (iDroid shell)
+=================================================== -->
+<section id="screen-dashboard" class="app-screen dashboard-screen">
+
+  <!-- Top status bar -->
+  <header class="status-bar">
+    <div class="status-left">
+      <span class="status-dot"></span>
+      <span class="status-label">MOTHER BASE — LINK AO VIVO</span>
     </div>
+    <div class="status-right" id="clockDisplay">00:00:00</div>
+  </header>
 
-    <!-- SIDEBAR -->
-    <nav class="idroid-sidebar d-flex flex-column justify-content-between">
-        <div>
-            <div class="p-3 border-bottom border-secondary text-center">
-                <h5 class="text-warning brand-font m-0"><i class="fa-solid fa-skull-crossbones me-2"></i> iDROID</h5>
-                <small class="text-muted" style="font-size: 0.7rem;">TERMINAL TÁTICO ACC</small>
-            </div>
-            <div class="py-2">
-                <a href="#home" class="idroid-nav-link active" data-view="home"><i class="fa-solid fa-house-chimney"></i> Início / Painel</a>
-                <a href="#deploy" class="idroid-nav-link" data-view="deploy"><i class="fa-solid fa-jets"></i> Deslocamento & Missões</a>
-                <a href="#motherbase" class="idroid-nav-link" data-view="motherbase"><i class="fa-solid fa-building-shield"></i> Mother Base</a>
-                <a href="#minigames" class="idroid-nav-link" data-view="minigames"><i class="fa-solid fa-gamepad"></i> Mini-games Táticos</a>
-                <a href="#intel" class="idroid-nav-link" data-view="intel"><i class="fa-solid fa-database"></i> Banco de Intel</a>
-                <a href="#ranking" class="idroid-nav-link" data-view="ranking"><i class="fa-solid fa-trophy"></i> Placar Global</a>
-                <a href="#achievements" class="idroid-nav-link" data-view="achievements"><i class="fa-solid fa-medal"></i> Conquistas</a>
-                <a href="#options" class="idroid-nav-link" data-view="options"><i class="fa-solid fa-gears"></i> Opções & Áudio</a>
-            </div>
-        </div>
-        <div class="p-3 border-top border-secondary text-center">
-            <div class="small text-muted">DIAMOND DOGS CO.</div>
-            <div class="text-warning small" id="sidebarVersion">LINK SEGURO v5.0</div>
-        </div>
+  <div class="dashboard-body">
+
+    <!-- Menu lateral iDroid -->
+    <nav class="idroid-nav" id="idroidNav" aria-label="Navegação iDroid">
+      <div class="idroid-nav-header">iDROID</div>
+      <button class="nav-item active" data-target="panel-home">
+        <span class="nav-icon">⌂</span><span>Início</span>
+      </button>
+      <button class="nav-item" data-target="panel-deploy">
+        <span class="nav-icon">⚑</span><span>Operações</span>
+      </button>
+      <button class="nav-item" data-target="panel-motherbase">
+        <span class="nav-icon">⛁</span><span>Mother Base</span>
+      </button>
+      <button class="nav-item" data-target="panel-intel">
+        <span class="nav-icon">◈</span><span>Inteligência</span>
+      </button>
+      <button class="nav-item" data-target="panel-map">
+        <span class="nav-icon">⌖</span><span>Mapa</span>
+      </button>
+      <button class="nav-item" data-target="panel-cassettes">
+        <span class="nav-icon">▶</span><span>Fitas Cassete</span>
+      </button>
+      <button class="nav-item" data-target="panel-ranking">
+        <span class="nav-icon">☰</span><span>Ranking</span>
+      </button>
+      <button class="nav-item" data-target="panel-achievements">
+        <span class="nav-icon">★</span><span>Conquistas</span>
+      </button>
+      <button class="nav-item" data-target="panel-options">
+        <span class="nav-icon">⚙</span><span>Opções</span>
+      </button>
     </nav>
 
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
-        <header class="holo-panel p-3 mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="border border-warning p-2 rounded bg-dark text-warning text-center" style="width: 50px; height: 50px;">
-                    <i id="hudAvatarIcon" class="fa-solid fa-user-ninja fa-2x"></i>
-                </div>
-                <div>
-                    <h5 id="hudName" class="m-0 text-warning brand-font">VENOM SNAKE</h5>
-                    <small id="hudUnitAndRank" class="text-muted">Unidade de Combate | Recruta</small>
-                </div>
-            </div>
-            
-            <div class="flex-grow-1 mx-lg-4" style="max-width: 350px;">
-                <div class="d-flex justify-content-between small text-warning mb-1">
-                    <span id="hudLevelText">LVL 1</span>
-                    <span id="hudXpText">0 / 500 XP</span>
-                </div>
-                <div class="progress" style="height: 8px; background: #111;">
-                    <div id="hudXpBar" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
-                </div>
-            </div>
+    <!-- Área de conteúdo -->
+    <main class="idroid-content">
 
-            <div class="d-flex align-items-center gap-3">
-                <div class="text-end">
-                    <div class="text-warning small"><i class="fa-solid fa-coins me-1"></i> <span id="hudGmp">150.000</span> GMP</div>
-                    <div class="text-success small"><i class="fa-solid fa-boxes-stacked me-1"></i> <span id="hudResources">5.400</span> RES</div>
-                </div>
-                <button class="btn btn-sm btn-tactical d-lg-none" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
-            </div>
-        </header>
-
-        <div id="viewsContainer">
-            <!-- VIEW: HOME -->
-            <div id="view-home" class="view-section">
-                <div class="row g-4">
-                    <div class="col-lg-8">
-                        <div class="holo-panel p-4 h-100 d-flex flex-column justify-content-between">
-                            <div>
-                                <h2 class="text-warning brand-font mb-3"><i class="fa-solid fa-terminal me-2"></i> CENTRO DE COMANDO AÉREO (ACC)</h2>
-                                <p class="text-muted">Bem-vindo de volta, Chefe. Telemetria da ACC online. Status operacional da Mother Base estável. Selecione uma missão ativa de deslocamento ou gerencie os mini-games táticos na interface do iDroid.</p>
-                                <div class="row g-3 my-3">
-                                    <div class="col-md-4">
-                                        <div class="holo-panel p-3 text-center">
-                                            <i class="fa-solid fa-jet-fighter fa-2x text-warning mb-2"></i>
-                                            <h6 class="text-white">Missões Concluídas</h6>
-                                            <h3 class="text-warning m-0" id="statMissionsCompleted">0/9</h3>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="holo-panel p-3 text-center">
-                                            <i class="fa-solid fa-shield-halved fa-2x text-warning mb-2"></i>
-                                            <h6 class="text-white">Plataformas</h6>
-                                            <h3 class="text-warning m-0" id="statPlatformsBuilt">5</h3>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="holo-panel p-3 text-center">
-                                            <i class="fa-solid fa-trophy fa-2x text-warning mb-2"></i>
-                                            <h6 class="text-white">Conquistas</h6>
-                                            <h3 class="text-warning m-0" id="statAchievementsCount">0/7</h3>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="d-flex gap-3">
-                                <button class="btn btn-tactical" onclick="switchView('deploy')"><i class="fa-solid fa-play me-2"></i> DESLOCAR PARA O CAMPO</button>
-                                <button class="btn btn-tactical" onclick="switchView('motherbase')"><i class="fa-solid fa-building me-2"></i> MOTHER BASE</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="holo-panel p-4 text-center h-100 d-flex flex-column align-items-center justify-content-center">
-                            <h5 class="text-warning mb-3 brand-font">RADAR TÁTICO</h5>
-                            <canvas id="radarCanvas" class="mb-3"></canvas>
-                            <p class="small text-muted">LINK DE SATÉLITE SEGURO ATIVO</p>
-                            <div id="quickQuote" class="text-warning small fst-italic">"Esperou muito tempo, hein?"</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VIEW: DEPLOY -->
-            <div id="view-deploy" class="view-section" style="display: none;">
-                <div class="holo-panel p-4 mb-4">
-                    <h2 class="text-warning brand-font mb-3"><i class="fa-solid fa-map-location-dot me-2"></i> DESLOCAMENTO DE MISSÃO (CAMPANHA)</h2>
-                    <p class="text-muted">Selecione uma operação para Pequod se deslocar e execute os objetivos táticos pelo Afeganistão e África.</p>
-                </div>
-                <div class="row g-4" id="campaignMissionsGrid"></div>
-            </div>
-
-            <!-- VIEW: MOTHER BASE -->
-            <div id="view-motherbase" class="view-section" style="display: none;">
-                <div class="holo-panel p-4 mb-4">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                        <div>
-                            <h2 class="text-warning brand-font mb-1"><i class="fa-solid fa-building-shield me-2"></i> GERENCIAMENTO DA MOTHER BASE</h2>
-                            <p class="text-muted m-0">Expanda plataformas, contrate soldados qualificados e gere recursos.</p>
-                        </div>
-                        <button class="btn btn-tactical" id="hireSoldierBtn"><i class="fa-solid fa-user-plus me-2"></i> CONTRATAR SOLDADO (GMP 10.000)</button>
-                    </div>
-                </div>
-                <div class="row g-4" id="motherBasePlatformsGrid"></div>
-            </div>
-
-            <!-- VIEW: MINI-GAMES -->
-            <div id="view-minigames" class="view-section" style="display: none;">
-                <div class="holo-panel p-4 mb-4">
-                    <h2 class="text-warning brand-font mb-3"><i class="fa-solid fa-gamepad me-2"></i> MINI-GAMES E SIMULAÇÕES TÁTICAS</h2>
-                    <p class="text-muted">Treine seu operativo, teste seus conhecimentos de lore, execute extrações Fulton e aprimore habilidades de infiltração.</p>
-                </div>
-                <div class="row g-4 mb-4">
-                    <div class="col-md-4">
-                        <div class="holo-panel p-4 h-100 d-flex flex-column justify-content-between">
-                            <div>
-                                <i class="fa-solid fa-brain fa-2x text-warning mb-3"></i>
-                                <h4 class="text-white">Quiz Tático MGSV</h4>
-                                <p class="text-muted small">Teste seus conhecimentos em 30+ perguntas de lore. Ganhe +100 XP por acerto.</p>
-                            </div>
-                            <button class="btn btn-tactical mt-3" onclick="openMiniGame('quiz')">INICIAR QUIZ</button>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="holo-panel p-4 h-100 d-flex flex-column justify-content-between">
-                            <div>
-                                <i class="fa-solid fa-user-secret fa-2x text-warning mb-3"></i>
-                                <h4 class="text-white">Infiltração Stealth</h4>
-                                <p class="text-muted small">Navegue pelos cones de visão dos guardas, use a caixa de papelão e alcance a LZ.</p>
-                            </div>
-                            <button class="btn btn-tactical mt-3" onclick="openMiniGame('stealth')">INICIAR STEALTH</button>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="holo-panel p-4 h-100 d-flex flex-column justify-content-between">
-                            <div>
-                                <i class="fa-solid fa-parachute-box fa-2x text-warning mb-3"></i>
-                                <h4 class="text-white">Recuperação Fulton</h4>
-                                <p class="text-muted small">Clicker dinâmico de extração. Extraia soldados, recursos e veículos.</p>
-                            </div>
-                            <button class="btn btn-tactical mt-3" onclick="openMiniGame('fulton')">INICIAR FULTON</button>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="holo-panel p-4 h-100 d-flex flex-column justify-content-between">
-                            <div>
-                                <i class="fa-solid fa-clone fa-2x text-warning mb-3"></i>
-                                <h4 class="text-white">Memória dos Diamond Dogs</h4>
-                                <p class="text-muted small">Jogo da memória com personagens e companheiros icônicos do MGSV.</p>
-                            </div>
-                            <button class="btn btn-tactical mt-3" onclick="openMiniGame('memory')">INICIAR MEMÓRIA</button>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="holo-panel p-4 h-100 d-flex flex-column justify-content-between">
-                            <div>
-                                <i class="fa-solid fa-id-card fa-2x text-warning mb-3"></i>
-                                <h4 class="text-white">Identificação de Personagem</h4>
-                                <p class="text-muted small">Identifique figuras-chave do MGSV baseando-se em pistas de inteligência.</p>
-                            </div>
-                            <button class="btn btn-tactical mt-3" onclick="openMiniGame('charid')">INICIAR ID</button>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="holo-panel p-4 h-100 d-flex flex-column justify-content-between">
-                            <div>
-                                <i class="fa-solid fa-font fa-2x text-warning mb-3"></i>
-                                <h4 class="text-white">Caça-Palavras Tático</h4>
-                                <p class="text-muted small">Encontre termos essenciais do MGSV contra o tempo.</p>
-                            </div>
-                            <button class="btn btn-tactical mt-3" onclick="openMiniGame('wordsearch')">INICIAR CAÇA-PALAVRAS</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="miniGameArena" class="holo-panel p-4" style="display: none;">
-                    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-secondary pb-3">
-                        <h3 id="activeGameTitle" class="text-warning brand-font m-0">ARENA DE MINI-GAME</h3>
-                        <button class="btn btn-sm btn-outline-warning" onclick="closeMiniGame()">SAIR DA SIMULAÇÃO</button>
-                    </div>
-                    <div id="miniGameContent"></div>
-                </div>
-            </div>
-
-            <!-- VIEW: INTEL -->
-            <div id="view-intel" class="view-section" style="display: none;">
-                <div class="holo-panel p-4 mb-4">
-                    <h2 class="text-warning brand-font mb-3"><i class="fa-solid fa-database me-2"></i> BANCO DE DADOS DE INTEL</h2>
-                    <p class="text-muted">Arquivos confidenciais sobre personagens, organizações, cronologia, companheiros, armas e Metal Gears.</p>
-                    <input type="text" id="intelSearchInput" class="form-control mt-3" placeholder="Pesquisar no banco de intel (ex: Quiet, Skull Face, Fulton)...">
-                </div>
-                <div class="row g-4" id="intelDatabaseGrid"></div>
-            </div>
-
-            <!-- VIEW: RANKING -->
-            <div id="view-ranking" class="view-section" style="display: none;">
-                <div class="holo-panel p-4 mb-4">
-                    <h2 class="text-warning brand-font mb-3"><i class="fa-solid fa-trophy me-2"></i> PLACAR GLOBAL DOS DIAMOND DOGS</h2>
-                    <p class="text-muted">Ranking global e local dos principais operativos com base em XP e missões concluídas.</p>
-                </div>
-                <div class="holo-panel p-4">
-                    <div class="table-responsive">
-                        <table class="table table-dark table-striped align-middle" style="background: transparent;">
-                            <thead>
-                                <tr class="text-warning">
-                                    <th>POSIÇÃO</th>
-                                    <th>OPERATIVO</th>
-                                    <th>UNIDADE</th>
-                                    <th>NÍVEL</th>
-                                    <th>PATENTE</th>
-                                    <th>XP</th>
-                                </tr>
-                            </thead>
-                            <tbody id="leaderboardTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VIEW: ACHIEVEMENTS -->
-            <div id="view-achievements" class="view-section" style="display: none;">
-                <div class="holo-panel p-4 mb-4">
-                    <h2 class="text-warning brand-font mb-3"><i class="fa-solid fa-medal me-2"></i> CONQUISTAS DO OPERATIVO</h2>
-                    <p class="text-muted">Desbloqueie troféus de prestígio dos Diamond Dogs dominando provações táticas.</p>
-                </div>
-                <div class="row g-4" id="achievementsGrid"></div>
-            </div>
-
-            <!-- VIEW: OPTIONS -->
-            <div id="view-options" class="view-section" style="display: none;">
-                <div class="holo-panel p-4">
-                    <h2 class="text-warning brand-font mb-3"><i class="fa-solid fa-gears me-2"></i> OPÇÕES E PREFERÊNCIAS DA ACC</h2>
-                    <p class="text-muted mb-4">Configure temas visuais e sistemas de retorno sonoro.</p>
-                    
-                    <div class="mb-4">
-                        <label class="form-label text-warning">TEMA VISUAL TÁTICO</label>
-                        <select id="themeSelector" class="form-select">
-                            <option value="diamond-dogs">Diamond Dogs (Verde Militar & Laranja)</option>
-                            <option value="night-ops">Operações Noturnas (Azul Profundo & Ciano Stealth)</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-4 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="audioToggle" checked>
-                        <label class="form-check-label text-white ms-2" for="audioToggle">Habilitar Efeitos Sonoros Sintéticos (Web Audio API)</label>
-                    </div>
-
-                    <div class="mb-4">
-                        <button class="btn btn-danger" onclick="resetSaveData()"><i class="fa-solid fa-triangle-exclamation me-2"></i> APAGAR DADOS SALVOS & REINICIAR</button>
-                    </div>
-                </div>
-            </div>
+      <!-- Painel do soldado (sempre visível no topo do dashboard) -->
+      <div class="soldier-card">
+        <div class="soldier-avatar-frame">
+          <img id="soldierAvatarImg" src="" alt="" class="soldier-avatar-img">
         </div>
+        <div class="soldier-info">
+          <p class="soldier-name" id="soldierNameDisplay">—</p>
+          <p class="soldier-meta">
+            <span id="soldierUnitDisplay">—</span> ·
+            <span id="soldierRankDisplay">—</span>
+          </p>
+          <div class="xp-row">
+            <span class="xp-level" id="soldierLevelDisplay">LV 1</span>
+            <div class="xp-bar-track">
+              <div class="xp-bar-fill" id="xpBarFill"></div>
+            </div>
+            <span class="xp-value" id="xpValueDisplay">0 / 100 XP</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOME -->
+      <div class="content-panel active-panel" id="panel-home">
+        <p class="eyebrow-label">VISÃO GERAL DAS OPERAÇÕES</p>
+        <h2 class="panel-title">Bem-vindo, <span id="homeSoldierName">Boss</span></h2>
+
+        <p class="codec-line" id="codecLine"></p>
+
+        <div class="stat-grid">
+          <div class="stat-box">
+            <p class="stat-label">Missões Concluídas</p>
+            <p class="stat-value" id="statMissions">0 / 9</p>
+          </div>
+          <div class="stat-box">
+            <p class="stat-label">XP Total</p>
+            <p class="stat-value" id="statXP">0</p>
+          </div>
+          <div class="stat-box">
+            <p class="stat-label">Conquistas</p>
+            <p class="stat-value" id="statAch">0 / 8</p>
+          </div>
+        </div>
+        <div class="radar-box">
+          <div class="radar-sweep-wrap">
+            <div class="radar-rings"></div>
+            <div class="radar-sweep"></div>
+          </div>
+          <p class="radar-caption">PERÍMETRO DA MOTHER BASE — TUDO LIMPO</p>
+        </div>
+      </div>
+
+      <!-- DEPLOY (missões) -->
+      <div class="content-panel" id="panel-deploy">
+        <p class="eyebrow-label">SELEÇÃO DE MISSÃO</p>
+        <h2 class="panel-title">Operações</h2>
+        <div class="mission-list" id="missionList"><!-- via JS --></div>
+      </div>
+
+      <!-- MOTHER BASE -->
+      <div class="content-panel" id="panel-motherbase">
+        <p class="eyebrow-label">GERENCIAMENTO DE INSTALAÇÕES</p>
+        <h2 class="panel-title">Mother Base</h2>
+        <p class="mb-intro">Complete as tarefas de desenvolvimento abaixo para expandir e fortalecer a Mother Base.</p>
+        <div class="mb-task-list" id="motherBaseTaskList"><!-- via JS --></div>
+      </div>
+
+      <!-- INTEL -->
+      <div class="content-panel" id="panel-intel">
+        <p class="eyebrow-label">BANCO DE DADOS CLASSIFICADO</p>
+        <h2 class="panel-title">Inteligência</h2>
+        <p class="mb-intro">Dossiês reunidos pela Diamond Dogs. Arquivos são desclassificados conforme você avança nas operações.</p>
+        <div class="intel-list" id="intelList"><!-- via JS --></div>
+      </div>
+
+      <!-- MAPA -->
+      <div class="content-panel" id="panel-map">
+        <p class="eyebrow-label">TEATRO DE OPERAÇÕES</p>
+        <h2 class="panel-title">Mapa</h2>
+
+        <div class="map-tabs" id="mapTabs" role="tablist" aria-label="Selecionar região">
+          <button type="button" class="map-tab-btn active" data-region="afghanistan">AFEGANISTÃO</button>
+          <button type="button" class="map-tab-btn" data-region="africa">ÁFRICA CENTRAL</button>
+        </div>
+
+        <div class="map-stage-wrap">
+          <div class="map-stage" id="mapStage"><!-- via JS (SVG) --></div>
+        </div>
+
+        <p class="map-region-caption" id="mapRegionCaption">Região selecionada: Afeganistão</p>
+
+        <div class="map-legend" id="mapLegend"><!-- via JS --></div>
+      </div>
+
+      <!-- FITAS CASSETE -->
+      <div class="content-panel" id="panel-cassettes">
+        <p class="eyebrow-label">ARQUIVO SONORO DE CAMPO</p>
+        <h2 class="panel-title">Fitas Cassete</h2>
+        <p class="mb-intro">Fitas recuperadas em campo e faixas da trilha sonora da Diamond Dogs. Áudio não incluído neste simulador — apenas o catálogo tático.</p>
+
+        <h3 class="cassette-subhead">Trilha Original</h3>
+        <div class="cassette-list" id="cassetteListScore"><!-- via JS --></div>
+
+        <h3 class="cassette-subhead">Músicas Licenciadas (Coletáveis)</h3>
+        <div class="cassette-list" id="cassetteListLicensed"><!-- via JS --></div>
+      </div>
+
+      <!-- RANKING -->
+      <div class="content-panel" id="panel-ranking">
+        <p class="eyebrow-label">MELHORES OPERATIVOS</p>
+        <h2 class="panel-title">Ranking</h2>
+        <table class="ranking-table">
+          <thead>
+            <tr><th>#</th><th>Codinome</th><th>Unidade</th><th>NV</th><th>Patente</th><th>XP</th></tr>
+          </thead>
+          <tbody id="rankingBody"></tbody>
+        </table>
+      </div>
+
+      <!-- ACHIEVEMENTS -->
+      <div class="content-panel" id="panel-achievements">
+        <p class="eyebrow-label">RECONHECIMENTO</p>
+        <h2 class="panel-title">Conquistas</h2>
+        <div class="achievement-grid" id="achievementGrid"><!-- via JS --></div>
+      </div>
+
+      <!-- OPTIONS -->
+      <div class="content-panel" id="panel-options">
+        <p class="eyebrow-label">CONFIGURAÇÃO DO SISTEMA</p>
+        <h2 class="panel-title">Opções</h2>
+
+        <div class="option-row">
+          <span class="tac-label">Tema</span>
+          <div class="theme-toggle" id="themeToggle">
+            <button type="button" class="theme-btn active" data-theme="diamond">Diamond Dogs</button>
+            <button type="button" class="theme-btn" data-theme="night">Operações Noturnas</button>
+          </div>
+        </div>
+
+        <div class="option-row">
+          <span class="tac-label">Progresso</span>
+          <button type="button" class="btn-tactical btn-danger" id="btnResetProgress">
+            <span class="btn-tactical-icon">⨯</span> REINICIAR PROGRESSO
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</section>
+
+<!-- ===================================================
+     MODAL DE QUIZ (briefing de missão)
+=================================================== -->
+<div class="quiz-overlay" id="quizOverlay" aria-hidden="true">
+  <div class="quiz-modal hud-frame">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <button type="button" class="quiz-close-x" id="btnQuizAbort" aria-label="Abortar briefing">✕</button>
+
+    <p class="eyebrow-label" id="quizMissionLabel">BRIEFING DE MISSÃO // 01</p>
+    <h2 class="panel-title" id="quizMissionTitle">Nome da Missão</h2>
+
+    <div id="quizBody">
+      <p class="quiz-progress" id="quizProgress">Pergunta 1 / 3</p>
+      <p class="quiz-question" id="quizQuestionText">Texto da pergunta</p>
+      <div class="quiz-options" id="quizOptions"><!-- via JS --></div>
     </div>
 
-    <!-- CUSTOM MODAL -->
-    <div id="customModal" class="modal fade" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content holo-panel text-white">
-                <div class="modal-header border-bottom border-secondary">
-                    <h5 id="modalTitle" class="text-warning brand-font">NOTIFICAÇÃO TÁTICA</h5>
-                </div>
-                <div class="modal-body">
-                    <p id="modalBodyText">Conteúdo da mensagem aqui.</p>
-                </div>
-                <div class="modal-footer border-top border-secondary">
-                    <button type="button" class="btn btn-tactical" data-bs-dismiss="modal">CIENTE</button>
-                </div>
-            </div>
-        </div>
+    <div id="quizResult" style="display:none;">
+      <h3 class="quiz-result-title" id="quizResultTitle">MISSÃO CONCLUÍDA</h3>
+      <p class="quiz-result-detail" id="quizResultDetail">Texto de detalhe</p>
+      <button type="button" class="btn-tactical w-100" id="btnQuizClose">
+        <span class="btn-tactical-icon">✓</span> FECHAR BRIEFING
+      </button>
     </div>
+  </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="javascript/gear.js"></script>
+<!-- toast de XP -->
+<div class="xp-toast" id="xpToast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="javascript/gear.js"></script>
 </body>
 </html>
