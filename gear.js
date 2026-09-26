@@ -118,25 +118,25 @@ const CONFIG = {
   // "requiresMission": índice de missão necessário para a fita
   // aparecer desbloqueada; null = disponível desde o início.
   cassetteTapesScore: [
-    { id: 'tape_sins', title: 'Sins of the Father', artist: 'Vocal: Donna Burke', foundAt: 'Concedida ao concluir a missão principal 30', requiresMission: null, youtubeId: null, youtubeQuery: 'Sins of the Father Donna Burke Metal Gear Solid V' },
-    { id: 'tape_quiet', title: "Quiet's Theme", artist: 'Vocal: Stefanie Joosten', foundAt: 'Encontrada após os rastros da missão 45', requiresMission: 2, youtubeId: null, youtubeQuery: "Quiet's Theme Stefanie Joosten Metal Gear Solid V" },
-    { id: 'tape_phantom', title: 'A Phantom Pain', artist: 'Trilha original', foundAt: 'Cabana ao nordeste do Wakh Sind Barracks', requiresMission: 0, youtubeId: null, youtubeQuery: 'A Phantom Pain theme Metal Gear Solid V soundtrack' },
-    { id: 'tape_snake_eater', title: 'Snake Eater', artist: 'Vocal: Cynthia Harrell (tema de MGS3)', foundAt: 'Posto de guarda oeste da Munoko ya Nioka Station', requiresMission: 5, youtubeId: null, youtubeQuery: 'Snake Eater Cynthia Harrell Metal Gear Solid' },
+    { id: 'tape_sins', title: 'Sins of the Father', artist: 'Vocal: Donna Burke', foundAt: 'Concedida ao concluir a missão principal 30', requiresMission: null, youtubeId: 'mLEaJGOcB48', youtubeQuery: 'Sins of the Father Donna Burke Metal Gear Solid V' },
+    { id: 'tape_quiet', title: "Quiet's Theme", artist: 'Vocal: Stefanie Joosten', foundAt: 'Encontrada após os rastros da missão 45', requiresMission: 2, youtubeId: 'pGJ9LgnxS5M', youtubeQuery: "Quiet's Theme Stefanie Joosten Metal Gear Solid V" },
+    { id: 'tape_phantom', title: 'A Phantom Pain', artist: 'Trilha original', foundAt: 'Cabana ao nordeste do Wakh Sind Barracks', requiresMission: 0, youtubeId: 'T4A6HSw0__8', youtubeQuery: 'A Phantom Pain theme Metal Gear Solid V soundtrack' },
+    { id: 'tape_snake_eater', title: 'Snake Eater', artist: 'Vocal: Cynthia Harrell (tema de MGS3)', foundAt: 'Posto de guarda oeste da Munoko ya Nioka Station', requiresMission: 5, youtubeId: 'm2OR_JaXDaM', youtubeQuery: 'Snake Eater Cynthia Harrell Metal Gear Solid' },
     // Fita adicionada nesta revisão — a mais dramática do catálogo.
-    { id: 'tape_herestoyou', title: "Here's to You (Nicola and Bart)", artist: 'Joan Baez & Ennio Morricone', foundAt: 'Tocada ao lado do memorial da Mother Base — tributo aos caídos da Diamond Dogs', requiresMission: 8, dramatic: true, youtubeId: null, youtubeQuery: "Joan Baez Ennio Morricone Here's to You Nicola and Bart" },
+    { id: 'tape_to_you', title: "Here's to You (Nicola and Bart)", artist: 'Joan Baez & Ennio Morricone', foundAt: 'Tocada ao lado do memorial da Mother Base — tributo aos caídos da Diamond Dogs', requiresMission: 8, dramatic: true, youtubeId: 'pVu1SfaoGdo', youtubeQuery: "Here's to You Nicola and Bart Joan Baez Ennio Morricone Metal Gear Solid V" },
   ],
 
   cassetteTapesLicensed: [
-    { id: 'tape_takeonme', title: 'Take On Me', artist: 'a-ha', foundAt: 'Yakho Oboo Supply Outpost, ala oeste', requiresMission: null, youtubeId: null, youtubeQuery: 'a-ha Take On Me official video' },
-    { id: 'tape_kids', title: 'Kids In America', artist: 'Kim Wilde', foundAt: 'Da Shago Kallai, próximo ao prédio principal', requiresMission: 1, youtubeId: null, youtubeQuery: 'Kim Wilde Kids In America official video' },
-    { id: 'tape_maneater', title: 'Maneater', artist: 'Hall & Oates', foundAt: 'Em frente ao Lamar Khaate Palace', requiresMission: 1, youtubeId: null, youtubeQuery: 'Hall & Oates Maneater official video' },
-    { id: 'tape_rebelyell', title: 'Rebel Yell', artist: 'Billy Idol', foundAt: 'Oeste da ponte na Mountain Relay Base', requiresMission: 3, youtubeId: null, youtubeQuery: 'Billy Idol Rebel Yell official video' },
-    { id: 'tape_friday', title: "Friday I'm In Love", artist: 'The Cure', foundAt: 'Casa grande do Lufwa Valley', requiresMission: 4, youtubeId: null, youtubeQuery: "The Cure Friday I'm In Love official video" },
-    { id: 'tape_loveweartus', title: 'Love Will Tear Us Apart', artist: 'Joy Division', foundAt: 'Afghanistan Central Base Camp', requiresMission: 2, youtubeId: null, youtubeQuery: 'Joy Division Love Will Tear Us Apart official video' },
-    { id: 'tape_science', title: 'She Blinded Me With Science', artist: 'Thomas Dolby', foundAt: 'Posto de guarda nordeste de Wialo Village', requiresMission: 5, youtubeId: null, youtubeQuery: 'Thomas Dolby She Blinded Me With Science official video' },
-    { id: 'tape_onlytime', title: 'Only Time Will Tell', artist: 'Asia', foundAt: 'Eastern Communications Post', requiresMission: 3, youtubeId: null, youtubeQuery: 'Asia Only Time Will Tell official video' },
-    { id: 'tape_mansold', title: 'The Man Who Sold the World', artist: 'Midge Ure', foundAt: 'Concedida ao concluir o Prólogo', requiresMission: null, youtubeId: null, youtubeQuery: 'Midge Ure The Man Who Sold the World' },
-    { id: 'tape_quietlife', title: 'Quiet Life', artist: 'Japan', foundAt: 'Prédio sudeste do Mfinda Oilfield', requiresMission: 6, youtubeId: null, youtubeQuery: 'Japan Quiet Life official video' },
+    { id: 'tape_takeonme', title: 'Take On Me', artist: 'a-ha', foundAt: 'Yakho Oboo Supply Outpost, ala oeste', requiresMission: null, youtubeId: 'djV11Xbc914', youtubeQuery: 'a-ha Take On Me official video' },
+    { id: 'tape_kids', title: 'Kids In America', artist: 'Kim Wilde', foundAt: 'Da Shago Kallai, próximo ao prédio principal', requiresMission: 1, youtubeId: '80TfG7C9azA', youtubeQuery: 'Kim Wilde Kids In America official video' },
+    { id: 'tape_maneater', title: 'Maneater', artist: 'Hall & Oates', foundAt: 'Em frente ao Lamar Khaate Palace', requiresMission: 1, youtubeId: 'wAeDVL-SBbU', youtubeQuery: 'Hall & Oates Maneater official video' },
+    { id: 'tape_rebelyell', title: 'Rebel Yell', artist: 'Billy Idol', foundAt: 'Oeste da ponte na Mountain Relay Base', requiresMission: 3, youtubeId: 'VdphvuyaV_I', youtubeQuery: 'Billy Idol Rebel Yell official video' },
+    { id: 'tape_friday', title: "Friday I'm In Love", artist: 'The Cure', foundAt: 'Casa grande do Lufwa Valley', requiresMission: 4, youtubeId: 'mGgMZpGYiy8', youtubeQuery: "The Cure Friday I'm In Love official video" },
+    { id: 'tape_loveweartus', title: 'Love Will Tear Us Apart', artist: 'Joy Division', foundAt: 'Afghanistan Central Base Camp', requiresMission: 2, youtubeId: 'zuuObGsB0No', youtubeQuery: 'Joy Division Love Will Tear Us Apart official video' },
+    { id: 'tape_science', title: 'She Blinded Me With Science', artist: 'Thomas Dolby', foundAt: 'Posto de guarda nordeste de Wialo Village', requiresMission: 5, youtubeId: 'V83JR2IoI8k', youtubeQuery: 'Thomas Dolby She Blinded Me With Science official video' },
+    { id: 'tape_onlytime', title: 'Only Time Will Tell', artist: 'Asia', foundAt: 'Eastern Communications Post', requiresMission: 3, youtubeId: 'Gmsc3BcJGvI', youtubeQuery: 'Asia Only Time Will Tell official video' },
+    { id: 'tape_mansold', title: 'The Man Who Sold the World', artist: 'Midge Ure', foundAt: 'Concedida ao concluir o Prólogo', requiresMission: null, youtubeId: 'mXHKjFKBC0g', youtubeQuery: 'Midge Ure The Man Who Sold the World' },
+    { id: 'tape_quietlife', title: 'Quiet Life', artist: 'Japan', foundAt: 'Prédio sudeste do Mfinda Oilfield', requiresMission: 6, youtubeId: 'AO2m-4Uecss', youtubeQuery: 'Japan Quiet Life official video' },
   ],
 
   mapRegions: {
